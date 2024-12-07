@@ -4,9 +4,10 @@ Created on Tue Oct  8 20:13:28 2024
 
 @author: Chris Jones
 """
+import wispr3 as wispr
+#import numpy as np
+#from scipy import signal
 import matplotlib.pyplot as plt
-import wispr3
-
 from tkinter import filedialog as fd
 
 names = fd.askopenfilenames()
@@ -15,7 +16,7 @@ filename = names[0]
 print(filename)
 
 # read the entire file
-data, time  = wispr3.read_file( filename, 0, 0)
+data, time  = wispr.read_file( filename, 0, 0)
 
 #dt = 1.0 / wispr3.sampling_rate
 
@@ -29,7 +30,18 @@ plt.xlabel('Seconds')
 plt.ylabel('Volts')
 plt.show()
 
+# Matplotlib.pyplot.specgram() function to
+# generate spectrogram
+fs = wispr.sampling_rate
+plt.figure(figsize=(10, 6))
 
-Happy birthday stef
-Always thinking of you with love and admiration. 
-You can always depend us to be there for you, as you are for us.
+#f, t, S = signal.spectrogram(np.array(data), fs)
+#plt.pcolormesh(t, f, S, shading='gouraud')
+plt.specgram(data, Fs=fs, cmap="jet")
+
+plt.title('Spectrogram')
+plt.ylabel('Frequency [Hz]')
+plt.xlabel('Time [sec]')
+plt.show()
+
+ 
