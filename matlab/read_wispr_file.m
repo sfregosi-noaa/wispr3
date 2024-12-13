@@ -1,35 +1,70 @@
-function [hdr, data, time, stamp, hdrStrs] = read_wispr_file(name, first, last)
+function [hdr, data, time, stamp, hdrStrs] = read_wispr_file_agate(name, first, last)
+%READ_WISPR_FILE_AGATE   read in a raw WISPR .dat file
 %
-% matlab script to plot wispr data
+%   Syntax:
+%      [HDR, DATA, TIME, STAMP, HDRSTRS] = READ_WISPR_FILE_AGATE(NAME, FIRST, LAST)
 %
-% A data file consists of an ascii file header followed by binary data
-% buffers. The ascii header is formatted as matlab expressions.
-% The binary data words are formatted as signed 16 or 24 bit integers.
+%   Description:
+%       
+%       A data file consists of an ascii file header followed by binary 
+%       data buffers. The ascii header is formatted as matlab expressions. 
+%       The binary data words are formatted as signed 16 or 24 bit 
+%       integers.
 %
-% The data file format is:
-% - 512 byte ascii header.
-% - adc buffer 1
-% - adc buffer 2
-% ...
-% - adc buffer N
-% where N is the number of adc buffers per file
+%       The data file format is:
+%          - 512 byte ascii header.
+%          - adc buffer 1
+%          - adc buffer 2
+%            ...
+%          - adc buffer N
+%       where N is the number of adc buffers per file
 %
-% The number of adc buffers is defined as
-% number_buffers = file_size*512 / buffer_size;
+%       The number of adc buffers is defined as 
+%       number_buffers = file_size*512 / buffer_size;
 %
-% The total data file size is always a multiple of 512 bytes blocks.
-% The variable 'file_size' is the number of 512 blocks in the file.
+%       The total data file size is always a multiple of 512 bytes blocks.
+%       The variable 'file_size' is the number of 512 blocks in the file.
 %
-% Each adc buffer is of length 'buffer_size' bytes.
-% The adc buffer is always a multiple of 512 bytes blocks (32 blocks in most cases).
-% Each adc buffer contains a fixed number of sample (samples_per_buffer).
-% Each sample is of fixed size in bytes (sample_size).
-% The sample size can be 2 or 3.
-% If 3 byte samples are used, there will be extra bytes of padded at the end of each adc buffer.
-% The number of bytes of padding is defined as:
-% padding_per_buffer = buffer_size - (samples_per_buffer * sample_size);
+%       Each adc buffer is of length 'buffer_size' bytes.
+%       The adc buffer is always a multiple of 512 bytes blocks (32 blocks 
+%       in most cases).Each adc buffer contains a fixed number of sample 
+%       (samples_per_buffer). Each sample is of fixed size in bytes 
+%       (sample_size). The sample size can be 2 or 3.
+%       If 3 byte samples are used, there will be extra bytes of padded at 
+%       the end of each adc buffer.
+%       The number of bytes of padding is defined as:
+%       padding_per_buffer = buffer_size - (samples_per_buffer*sample_size);
 %
+%   Inputs:
+%       name    [string] fullpath filename to raw .dat file
+%       first   [integer] buffer to start reading at. Set to 0 to just 
+%               read the header. Set to 1 to start at the beginning.
+%       last    [integer] buffer to read to. Set to 0 to read the entire 
+%               file
 %
+%   Outputs:
+%       hdr     [struct] header information
+%       data    [double] sound data
+%       time    [double] count of time from 0
+%       stamp   [double] time in linux epoch time
+%       hdrStrs [cell array] header lines as a string
+%
+%   Examples: 
+%       % read in single file from start to finish
+%       inFile = 'C:\wispr_241010_121418.dat';
+%       [hdr, raw, time, timestamp, hdrStrs] = read_wispr_file_agate(inFile, 1, 0);
+%
+%   See also CONVERTWISPR
+%
+%   Authors:
+%       Chris Jones, Embedded Ocean Systems
+%       S. Fregosi <selene.fregosi@gmail.com> <https://github.com/sfregosi>
+%
+%   Updated:        13 December 2024
+%
+%	Created with MATLAB ver.: 24.2.0.2740171 (R2024b) Update 1
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 fp = fopen( name, 'r', 'ieee-le' );
 
