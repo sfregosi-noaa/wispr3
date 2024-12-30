@@ -95,7 +95,7 @@ while( go )
     start = start + num_bufs_to_display;
     
     % remove the start time because the numbers are too big for plot zoom
-    time = time(:) - time(1,1);
+    time = time - time(1,1);
     
     nchans = hdr.channels;
     nsamps = length(raw(:)) / nchans;
@@ -108,13 +108,15 @@ while( go )
     % plot data buffers
     fig1 = figure(1); clf;
     %subplot(2,1,1);
-    plot(time, data,'.-');
+    plot(time(:), data(:),'.-');
+    %plot(time, raw,'.-');
     ylabel('Volts');
     xlabel('Seconds');
     grid on;
     axis([min(time(:)) max(time(:)) min(data(:))-0.1 max(data(:))+0.1 ]);
-    %tstr = sprintf('%s', name);
-    %title(tstr);
+    str = sprintf('%s', file(1:end-4));
+    str = strrep(str, '_', '\_');
+    title(str);
     
     if plot_psd
         
@@ -124,14 +126,15 @@ while( go )
         
         % plot noise spectrum
         fig2 = figure(2); clf;
-        subplot(2,1,1);
+        subplot(2,1,2);
         %hold on;
         semilogx(psd.freq/1000, psd.db, 'k.-');
         %grid(gca,'minor');
         grid on;
         xlabel('Frequency [kHz]'),
         sig_var = var(data(:));
-        title(['Power Spectral Density Estimate: Total Energy ' num2str(psd.total_energy) ', Variance ' num2str(sig_var)]);
+        title('Averaged Power Spectral Density Estimate');
+        %title(['Averaged Power Spectral Density Estimate: Total Energy ' num2str(psd.total_energy) ', Variance ' num2str(sig_var)]);
         if use_preamp_gain
             ylabel('dB re: 1 uPa^2/Hz');
             plot_wenz(2);
@@ -140,7 +143,7 @@ while( go )
         else
             ylabel('dB re: 1 V^2/Hz');
         end
-        subplot(2,1,2);
+        subplot(2,1,1);
         hold on;
         %surf(T, freq/1000, 10*log10(abs(spec)),'EdgeColor','none');
         surf(psd.time-psd.time(1), psd.freq/1000, psd.spectrogram,'EdgeColor','none');
@@ -148,12 +151,14 @@ while( go )
         xlabel('Seconds');
         ylabel('Frequency (kHz)');
         if use_preamp_gain
-            str = sprintf('Spectrogram: Gray scale 20 to 100 dB re: 1 uPa^2/Hz');
-            colormap(gray); caxis([20 100]);
+            str = sprintf('%s Spectrogram: dB re: 1 uPa^2/Hz', file(1:end-4));
+            colormap(gray); caxis([20 80]);
         else
-            str = sprintf('Spectrogram: Gray scale 20 to 100 dB re: 1 V^2/Hz');
-            %colormap(gray); caxis([-80 -50]);
+            str = sprintf('%s Spectrogram: dB re: 1 V^2/Hz', file(1:end-4));
+            colormap(bone); caxis([-120 -80]);
         end
+        colorbar();
+        str = strrep(str, '_', '\_');
         title(str);
 
     end
@@ -186,10 +191,13 @@ while( go )
 
 end
 
-%in = input('Save plot [0]:');
-%if( in == 1 )
-%    print(fig1, '-dpng', [file(1:end-4) 'a']);
-%end
+in = input('Save plot [0]:');
+if( in == 1 )
+    print(fig1, '-dpng', [file(1:end-4) '']);
+    if(fig2)
+        print(fig2, '-dpng', [file(1:end-4) '_psd']);
+    end
+end
 
 return;
 
