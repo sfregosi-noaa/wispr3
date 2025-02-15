@@ -79,6 +79,7 @@ t0 = hdr.second;
 
 start = 1;
 go = 1;
+flip = 1;
 
 while( go )
 
@@ -105,6 +106,11 @@ while( go )
     % remove the mean
     %data = data - mean(data(:));
 
+%    for n = 1:size(raw,2)
+%        raw(:,n) = flip * raw(:,n);
+%        flip = -1 * flip;
+%    end
+    
     % plot data buffers
     fig1 = figure(1); clf;
     %subplot(2,1,1);
@@ -139,7 +145,7 @@ while( go )
             ylabel('dB re: 1 uPa^2/Hz');
             plot_wenz(2);
             axis([0 psd.freq(end)/1000 0 100]);
-            legend('SPL','Wenz SS-0', 'Wenz SS-1', 'Wenz SS-6');
+            %legend('SPL','Wenz SS-0', 'Wenz SS-1', 'Wenz SS-6');
         else
             ylabel('dB re: 1 V^2/Hz');
         end
