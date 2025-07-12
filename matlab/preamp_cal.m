@@ -16,7 +16,7 @@
 clear all;
 
 % SN of the preamp/adc board - must be a string less than 16 chars
-sn = 'EOS01';
+sn = 'WISPR3_no2';
 
 % prompt for SN
 str = sprintf('Enter SN [%s]: ', sn);
@@ -36,11 +36,11 @@ name = fullfile(dpath,file);
 
 % define hydropgone sensitivity, not used for the calibration 
 % but saved in the calibration file for use later
-hydro_sens = -176.0;
+hydro_sens = -164.5;
 
 % define the amplitude of sine wave sweep
 amp = 0.010;
-str = sprintf('Enter input amplitude [%f]: ', amp);
+str = sprintf('Enter input amplitude (V) [%f]: ', amp);
 in =  input(str);
 if(~isempty(in))
     amp = in;
@@ -108,9 +108,11 @@ plot(preamp_freq/1000, preamp_gain,'.-'); %normalize the power spec
 grid(gca,'minor');
 grid on;
 xlabel('Frequency [kHz]'),
-ylabel('20*log_{10}( V_{out} \\ V_{in} )');
+ylabel('20*log_{10}( V_{out} \\ V_{in} ) [dB]');
 %axis([0 f(end)/1000 -185 -135]);
-title(sn);
+%set(gca, 'XScale', 'log') % set x-axis to log scale
+%xlim([0 100])
+title(sn, 'Interpreter', 'none');
 
 % save the plot
 print(fig2, '-dpng', png_file);
