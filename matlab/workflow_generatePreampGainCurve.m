@@ -39,7 +39,7 @@
 %	Authors:
 %		S. Fregosi <selene.fregosi@gmail.com> <https://github.com/sfregosi>
 %
-%	Updated:   2025 July 08
+%	Updated:   2025 July 15
 %
 %	Created with MATLAB ver.: 24.2.0.2740171 (R2024b) Update 1
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,16 +49,18 @@
 
 % SN of the preamp/adc board - must be a string less than 16 chars
 % used for filename generation
-sn = 'WISPR3_no2';
+sn = 'WISPR3_no1';
 
 % fullfile path of calibration recording (as raw .dat file)
 % set to [] to be prompted to select one
 data_file = [];
 data_file = "D:\wispr_calibration\wispr_no2\250514\WISPR_250514_213247.dat";
+data_file = "E:\wispr_calibration\wispr_no1\250714\no1_250714_134457.dat";
 
 % define hydropgone sensitivity, not used for the calibration
 % but saved in the calibration file for use later
 hydro_sens = -165;
+hydro_sens = 0;
 
 % define the amplitude of sine wave sweep (in volts)
 % ideally 10 mV)
@@ -127,7 +129,15 @@ png_file = sprintf('%s_preamp_gain.png', sn);
 %% do stuff
 
 % Read the calibration data file collected with a signal generator input
-[hdr, vout, time] = read_wispr_file(name, 2, 1024);
+[hdr, vout, time] = read_wispr_file(data_file, 2, 1024);
+% only read up to 90 seconds or full file (to avoid loading giant files)
+if hdr.file_duration > 90
+    lastBuffer = round(90*hdr.sampling_rate/hdr.samples_per_buffer);
+else
+    lastBuffer = 0; % read everything
+end
+
+[hdr, vout, time] = read_wispr_file(data_file, 2, lastBuffer);
 
 %vout = sqrt(mean(data(:).^2)); % RMS
 vout = vout(:);
