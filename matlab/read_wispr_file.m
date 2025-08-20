@@ -101,7 +101,7 @@ hdr.adc_vref = adc_vref;
 hdr.adc_df = adc_df;
 hdr.decimation = decimation;
 hdr.adc_timestamp = timestamp;
-hdr.number_buffers = hdr.file_size * 512 / hdr.buffer_size;
+hdr.number_buffers = (hdr.file_size - 1) * 512 / hdr.buffer_size;
 hdr.buffer_duration = samples_per_buffer * dt;
 hdr.file_duration = hdr.buffer_duration * hdr.number_buffers;
 
