@@ -46,6 +46,13 @@ if(~isempty(in))
     amp = in;
 end
 
+R = 1;
+%str = sprintf('Enter decimation factor [%d]: ', R);
+%in =  input(str);
+%if(~isempty(in))
+%    R = in;
+%end
+
 % Define input voltage if a voltage divider is used for the input
 %R2 = 47;
 %R1 = 4700;
@@ -54,7 +61,7 @@ end
 %vin = sqrt(2) * vin / 2; % RMS
 
 % Define input voltage if a 20db attenuator (20 dB)
-% The 2 is because amp half of the differenceial signal
+% The 2 is because amp is half of the differenceial signal
 % Need to check that the attenuator 20db include the rms factor of sqrt(2)/2
 vin = 2 * amp / 10; 
 
@@ -63,10 +70,17 @@ vin = 2 * amp / 10;
 
 %vout = sqrt(mean(data(:).^2)); % RMS
 vout = vout(:);
+time = time(:);
+
+% decimate vout
+if ( R > 1 )
+    vout = decimate(vout,R);
+    time = time(1:R:end);
+end
 
 % plot data buffers 
 figure(1); clf;
-d = 50;
+d = 50/R;
 %plot(time(1:d:end,:), vout(1:d:end,:),'.-');
 plot(vout(1:d:end),'-');
 ylabel('Volts');
@@ -80,9 +94,14 @@ bound = ginput(2);
 start = floor(d * bound(1));
 stop = floor(d * bound(2)) + 1;
 vout = vout(start:stop);
+time = time(start:stop);
+time = time - time(1);
+
+% remove mean
+vout = vout - mean(vout);
 
 figure(1); %clf;
-plot(vout,'.-');
+plot(time, vout,'.-');
 ylabel('Volts');
 xlabel('Sample');
 grid on;
@@ -90,6 +109,11 @@ grid on;
 
 % Calc spectrum of vout/vin
 fft_size = 256;
+str = sprintf('Enter fft size [%d]: ', fft_size);
+in =  input(str);
+if(~isempty(in))
+    fft_size = in;
+end
 overlap = fft_size-64;
 %window = rectwin(fft_size);
 window = hamming(fft_size)*1.59; %multiply energy correction
